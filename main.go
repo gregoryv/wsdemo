@@ -14,6 +14,8 @@ import (
 func main() {
 	http.HandleFunc("/socket", socketHandler)
 	http.HandleFunc("/", home)
+	http.HandleFunc("/ws.js", wsjs)
+
 	bind := "localhost:8099"
 	log.Print(bind)
 	log.Fatal(http.ListenAndServe(bind, nil))
@@ -28,11 +30,14 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	var i int
 	go func() {
+		var i int
 		for {
 			<-time.After(2 * time.Second)
-			err = conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("ping %v", i)))
+			msg := fmt.Sprintf("ping %v", i)
+			err = conn.WriteMessage(
+				websocket.TextMessage, []byte(msg),
+			)
 			if err != nil {
 				log.Println("Error during message writing:", err)
 			}
@@ -41,17 +46,12 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 	// The event loop
 	for {
-		messageType, message, err := conn.ReadMessage()
+		_, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("Error during message reading:", err)
 			break
 		}
 		log.Printf("Received: %s", message)
-		err = conn.WriteMessage(messageType, message)
-		if err != nil {
-			log.Println("Error during message writing:", err)
-			break
-		}
 	}
 }
 
@@ -59,13 +59,18 @@ func home(w http.ResponseWriter, r *http.Request) {
 	index.ExecuteTemplate(w, "", nil)
 }
 
+func wsjs(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/javascript")
+	w.Write(wsJS)
+}
+
 var upgrader websocket.Upgrader
 
-//go:embed index.html
-var indexHtml string
+var (
+	//go:embed index.html
+	indexHtml string
+	index     = template.Must(template.New("").Parse(indexHtml))
 
-var index *template.Template
-
-func init() {
-	index = template.Must(template.New("").Parse(indexHtml))
-}
+	//go:embed ws.js
+	wsJS []byte
+)
