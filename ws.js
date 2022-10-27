@@ -2,7 +2,8 @@ let socket = new WebSocket("ws://localhost:8099/socket");
 let p = document.getElementById("progress");
 
 function log(v) {
-  p.innerText += v + "\n";
+    p.innerHTML += v + "\n";
+    p.scrollTop = p.scrollHeight;
 }
 
 socket.onopen = function(e) {

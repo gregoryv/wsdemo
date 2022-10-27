@@ -33,7 +33,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		var i int
 		for {
-			<-time.After(2 * time.Second)
+			<-time.After(time.Second)
 			msg := fmt.Sprintf("ping %v", i)
 			err = conn.WriteMessage(
 				websocket.TextMessage, []byte(msg),
