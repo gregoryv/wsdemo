@@ -39,7 +39,8 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 				websocket.TextMessage, []byte(msg),
 			)
 			if err != nil {
-				log.Println("Error during message writing:", err)
+				log.Print("pinger closed")
+				return
 			}
 			i++
 		}
@@ -47,12 +48,13 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	// The event loop
 	for {
 		_, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("Error during message reading:", err)
+		if err, ok := err.(*websocket.CloseError); ok {
+			log.Print(err)
 			break
 		}
 		log.Printf("Received: %s", message)
 	}
+	log.Print("socketHandler done")
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
