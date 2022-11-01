@@ -6,6 +6,7 @@ and this project adheres to http://semver.org/spec/v2.0.0.html.
 
 ## [unreleased]
 
+- Use http.FileServer
 - Add license
 
 ## [v0.1.0] - 2022-10-29

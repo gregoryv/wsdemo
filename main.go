@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	_ "embed"
 	"fmt"
 	"html/template"
@@ -13,8 +14,8 @@ import (
 
 func main() {
 	http.HandleFunc("/socket", socketHandler)
+	http.Handle("/static/", http.StripPrefix("/static/", static))
 	http.HandleFunc("/", home)
-	http.HandleFunc("/ws.js", wsjs)
 
 	bind := "localhost:8099"
 	log.Print(bind)
@@ -61,11 +62,6 @@ func home(w http.ResponseWriter, r *http.Request) {
 	index.ExecuteTemplate(w, "", nil)
 }
 
-func wsjs(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("content-type", "application/javascript")
-	w.Write(wsJS)
-}
-
 var upgrader websocket.Upgrader
 
 var (
@@ -74,5 +70,6 @@ var (
 	index     = template.Must(template.New("").Parse(indexHtml))
 
 	//go:embed ws.js
-	wsJS []byte
+	assets embed.FS
+	static = http.FileServer(http.FS(assets))
 )
