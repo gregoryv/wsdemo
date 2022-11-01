@@ -18,7 +18,8 @@ func main() {
 	http.HandleFunc("/", home)
 
 	bind := "localhost:8099"
-	log.Print(bind)
+	log.SetFlags(0)
+	log.Println("listen", bind)
 	log.Fatal(http.ListenAndServe(bind, nil))
 }
 

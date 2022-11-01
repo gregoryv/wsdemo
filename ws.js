@@ -1,4 +1,4 @@
-let socket = new WebSocket("ws://localhost:8099/socket");
+let socket = new WebSocket("ws://" + window.location.host + "/socket");
 let p = document.getElementById("progress");
 
 function log(v) {
